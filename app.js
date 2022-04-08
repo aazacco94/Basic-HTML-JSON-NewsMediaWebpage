@@ -1,10 +1,7 @@
 const express = require("express");
 const ArticleRoutes = require("./routes/article.routes");
-const mongodb = require("./mongodb/mongodb.connect");
 
 const app = express();
-
-mongodb.connect();
 
 app.use(express.json());
 
