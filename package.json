@@ -1,11 +1,10 @@
 {
   "name": "lab4_aazacco",
   "version": "1.0.0",
-  "description": "- npm init --yes\r - npm install express --save\r - npm install jest --save-dev\r - npm install mongoose --save \r - create jest.config.js file to set test Environement to node\r - npm install node-mocks-http --save\r - npm install supertest --save",
+  "description": "- npm init --yes\r - npm install express --save",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watchAll",
-    "start": "node server.js"
+    "act1": "node activity1/NewsAPI.js"
   },
   "keywords": [],
   "author": "",

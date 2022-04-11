@@ -1,8 +1,7 @@
 'use strict'
 const fs = require('fs');
-const { runInNewContext } = require('vm');
-let newsPath = './news.json';
-let news, articles, filteredArt, jsonObj, rawdata;
+let newsPath = './rawdata/news.json';
+let news, articles, filteredArt, rawdata;
 
 rawdata = fs.readFileSync(newsPath);
 news = JSON.parse(rawdata);
