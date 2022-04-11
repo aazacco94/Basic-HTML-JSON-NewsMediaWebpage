@@ -1,5 +1,6 @@
 'use strict'
 const fs = require('fs');
+const { runInNewContext } = require('vm');
 let newsPath = './news.json';
 let news, articles, filteredArt, jsonObj, rawdata;
 
@@ -11,21 +12,31 @@ filteredArt = articles;
 async function updateArticles(){
   news.NEWS.ARTICLE = articles;
   let newsStr = JSON.stringify(news, null, 4);
-  await fs.writeFile(newsPath, newsStr, (err) => {
-    if(err) {
-      console.log(err);
-      next(err);
-    } else console.log('File has been updated!');
-  });
+
+  try{
+    fs.writeFileSync(newsPath, newsStr);
+    console.log('File has been updated!');
+  }catch(err){
+    next(err);
+  }
 }
 
 exports.createArticle = async (req, res, next) => {
   try{
-    const article = req.body;
-    articles.push(article);
-    filteredArt = articles
-    updateArticles();
-    res.status(200).json(articles);
+    if(
+      req.body.TITLE != undefined &&
+      req.body.AUTHOR != undefined &&
+      req.body.DATE != undefined &&
+      req.body.PUBLIC != undefined &&
+      req.body.CONTENT != undefined){
+        const article = req.body;
+        articles.push(article);
+        filteredArt = articles
+        updateArticles();
+        res.status(200).json(articles);
+      }else{
+        res.status(400).json({message:"All fields are required to create an Article!"})
+      }
   }catch(err){
     next(err);
   }
@@ -42,9 +53,13 @@ exports.getArticles = async (req, res, next) =>{
 
 exports.getArticleById = async (req, res, next) =>{
   try{
-    let artNum = req.params.articleId;
-    let article = articles[artNum];
-    res.status(200).json(article);
+    if(req.params.articleId < articles.length && req.params.articleId > 0){
+      let artNum = req.params.articleId;
+      let article = articles[artNum];
+      res.status(200).json(article);
+    }else{
+      res.status(404).json({message:"Not a correct Article Number!"})
+    }
   }catch(err){
     next(err);
   }
@@ -52,11 +67,24 @@ exports.getArticleById = async (req, res, next) =>{
 
 exports.updateArticle = async (req, res, next) =>{
   try{
-    let artNum = req.params.articleId;
-    let updatedArt = req.body;
-    articles[artNum] = updatedArt;
-    updateArticles();
-    res.status(200).json(updatedArt);
+    if(req.params.articleId < articles.length && req.params.articleId > 0){
+      if(
+        req.body.TITLE != undefined &&
+        req.body.AUTHOR != undefined &&
+        req.body.DATE != undefined &&
+        req.body.PUBLIC != undefined &&
+        req.body.CONTENT != undefined){
+          let artNum = req.params.articleId;
+          let updatedArt = req.body;
+          articles[artNum] = updatedArt;
+          updateArticles();
+          res.status(200).json(updatedArt);
+        }else{
+          res.status(400).json({message:"All fields are required to create an Article!"})
+        }
+    }else{
+      res.status(404).json({message:"Not a correct Article Number!"})
+    }
   }catch(err){
     next(err);
   }
@@ -64,11 +92,15 @@ exports.updateArticle = async (req, res, next) =>{
 
 exports.deleteArticle = async (req, res, next) =>{
   try{
-    let artNum = req.params.articleId;
-    articles[artNum] = "";
-    articles = articles.filter(x => x !== "");
-    updateArticles();
-    res.status(200).json(articles);
+    if(req.params.articleId < articles.length && req.params.articleId > 0){
+      let artNum = req.params.articleId;
+      articles[artNum] = "";
+      articles = articles.filter(x => x !== "");
+      updateArticles();
+      res.status(200).json(articles);
+    }else{
+      res.status(404).json({message:"Not a correct Article Number!"})
+    }
   }catch(err){
     next(err);
   }
