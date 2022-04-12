@@ -3,11 +3,12 @@ const ArticleRoutes = require("./routes/article.routes");
 const fs = require('fs');
 const mainPagePath = './rawdata/mainpage.html';
 var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
 
 const app = express();
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-// app.use(express.json());
 
 app.use("/articles", ArticleRoutes);
 
