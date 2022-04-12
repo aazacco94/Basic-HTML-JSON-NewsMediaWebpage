@@ -5,6 +5,7 @@ const newsPath = './rawdata/news.json';
 const articlesPagePath = './rawdata/articlespage.html';
 const editPagePath = './rawdata/editArticlesPage.html';
 const addPagePath = './rawdata/addArticlePage.html';
+const deletePagePath = './rawdata/deleteArticlesPage.html';
 let news, articles, filteredArt, rawdata;
 
 rawdata = fs.readFileSync(newsPath);
@@ -57,7 +58,7 @@ function buildEditHTML(jsonData, html, artNum){
     for(var i in jsonData){
       newHTML = newHTML + 
       "<tr>"+
-      '<td><input type="radio" id="'+i+'" name="articleRadio" value="'+i+'"/></td>'+
+      '<td><input type="radio" id="'+jsonData[i].id+'" name="articleRadio" value="'+jsonData[i].id+'"/></td>'+
       "<td>"+jsonData[i].TITLE+"</td>"+
       "<td>"+jsonData[i].AUTHOR+"</td>"+
       "<td>"+jsonData[i].DATE+"</td>"+
@@ -71,7 +72,7 @@ function buildEditHTML(jsonData, html, artNum){
     "</tr>";
   }
 
-  newHTML = newHTML + '</table><input type="submit" value="Edit Article"></form><br><br><span><a href="/articles/add">Add Articles</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/articles/delete">Delete Articles</a></span><br><br>' + htmlArr[1];
+  newHTML = newHTML + '</table><input type="submit" value="Edit Article"></form><br><br><span><a href="/articles/add">Add Articles</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/articles/delete">Delete Articles</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/articles?">Search Articles</a></span><br><br>' + htmlArr[1];
   return newHTML;
 }
 
@@ -86,7 +87,7 @@ function buildAddHTML(jsonData, html){
     for(var i in jsonData){
       newHTML = newHTML + 
       "<tr>"+
-      '<td><input type="radio" id="'+i+'" name="articleRadio" value="'+i+'"/></td>'+
+      '<td><input type="radio" id="'+jsonData[i].id+'" name="articleRadio" value="'+jsonData[i].id+'"/></td>'+
       "<td>"+jsonData[i].TITLE+"</td>"+
       "<td>"+jsonData[i].AUTHOR+"</td>"+
       "<td>"+jsonData[i].DATE+"</td>"+
@@ -100,14 +101,33 @@ function buildAddHTML(jsonData, html){
     "</tr>";
   }
 
-  newHTML = newHTML + '</table><input type="submit" value="Edit Article"></form><br><br><span><a href="/articles/delete">Delete Articles</a></span><br><br>' + htmlArr[1];
+  newHTML = newHTML + '</table><input type="submit" value="Edit Article"></form><br><br><span><a href="/articles/delete">Delete Articles</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/articles?">Search Articles</a></span><br><br>' + htmlArr[1];
   return newHTML;
 }
 
-function buildArticlesHTML(jsonData, html){
+function buildArticlesHTML(jsonData, html, urlObj){
   let htmlStr = html.toString();
   let htmlArr = htmlStr.split("<br /><br /><br /><br /><br /><br /><br />");
   let newHTML = htmlArr[0];
+  let titleFilter = urlObj.searchParams.get("TITLE");
+  let authorFilter = urlObj.searchParams.get("AUTHOR");
+  let dateFilter = urlObj.searchParams.get("DATE");
+
+  if(titleFilter !=="" && titleFilter !== null){
+    jsonData = jsonData.filter(function(filtered){
+      return (filtered.TITLE).includes(titleFilter);
+    });
+  }
+  if(authorFilter !=="" && authorFilter !== null){
+    jsonData = jsonData.filter(function(filtered){
+      return (filtered.AUTHOR).includes(authorFilter);
+    });
+  }
+  if(dateFilter !=="" && dateFilter !== null){
+    jsonData = jsonData.filter(function(filtered){
+      return (filtered.DATE).includes(dateFilter);
+    });
+  }
 
   newHTML = newHTML + '<form action="articles/edit" method="get"><table border=1 cols=5><tr><th>Select</th><th>Title</th><th>Author</th><th>Date</th><th>Content</th></tr>';
 
@@ -115,7 +135,7 @@ function buildArticlesHTML(jsonData, html){
     for(var i in jsonData){
       newHTML = newHTML + 
       "<tr>"+
-      '<td><input type="radio" id="'+i+'" name="articleRadio" value="'+i+'"/></td>'+
+      '<td><input type="radio" id="'+jsonData[i].id+'" name="articleRadio" value="'+jsonData[i].id+'"/></td>'+
       "<td>"+jsonData[i].TITLE+"</td>"+
       "<td>"+jsonData[i].AUTHOR+"</td>"+
       "<td>"+jsonData[i].DATE+"</td>"+
@@ -133,10 +153,30 @@ function buildArticlesHTML(jsonData, html){
   return newHTML;
 }
 
-function buildDeletePageHTML(jsonData, html){
+function buildDeletePageHTML(jsonData, html, urlObj){
   let htmlStr = html.toString();
   let htmlArr = htmlStr.split("<br /><br /><br /><br /><br /><br /><br />");
   let newHTML = htmlArr[0];
+
+  let titleFilter = urlObj.searchParams.get("TITLE");
+  let authorFilter = urlObj.searchParams.get("AUTHOR");
+  let dateFilter = urlObj.searchParams.get("DATE");
+
+  if(titleFilter !=="" && titleFilter !== null){
+    jsonData = jsonData.filter(function(filtered){
+      return (filtered.TITLE).includes(titleFilter);
+    });
+  }
+  if(authorFilter !=="" && authorFilter !== null){
+    jsonData = jsonData.filter(function(filtered){
+      return (filtered.AUTHOR).includes(authorFilter);
+    });
+  }
+  if(dateFilter !=="" && dateFilter !== null){
+    jsonData = jsonData.filter(function(filtered){
+      return (filtered.DATE).includes(dateFilter);
+    });
+  }
 
   newHTML = newHTML + '<form action="delete" method="get"><table border=1 cols=5><tr><th>Select</th><th>Title</th><th>Author</th><th>Date</th><th>Content</th></tr>';
 
@@ -144,7 +184,7 @@ function buildDeletePageHTML(jsonData, html){
     for(var i in jsonData){
       newHTML = newHTML + 
       "<tr>"+
-      '<td><input type="radio" id="'+i+'" name="articleRadio" value="'+i+'"/></td>'+
+      '<td><input type="radio" id="'+jsonData[i].id+'" name="articleRadio" value="'+jsonData[i].id+'"/></td>'+
       "<td>"+jsonData[i].TITLE+"</td>"+
       "<td>"+jsonData[i].AUTHOR+"</td>"+
       "<td>"+jsonData[i].DATE+"</td>"+
@@ -158,7 +198,7 @@ function buildDeletePageHTML(jsonData, html){
     "</tr>";
   }
 
-  newHTML = newHTML + '</table><input type="submit" value="Delete Article"></form><br><br><span><a href="/articles/add">Add Articles</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/articles/edit?">Edit Articles</a></span><br><br>' + htmlArr[1];
+  newHTML = newHTML + '</table><input type="submit" value="Delete Article"></form><br><br><span><a href="/articles/add">Add Articles</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/articles/edit?">Edit Articles</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/articles">Search Articles</a></span><br><br>' + htmlArr[1];
   return newHTML;
 }
 
@@ -190,6 +230,8 @@ exports.createArticle = async (req, res, next) => {
       req.body.PUBLIC != undefined &&
       req.body.CONTENT != undefined){
         const article = req.body;
+        article.id = articles.length;
+        console.log("New Article: "+ article);
         articles.push(article);
         filteredArt = articles
         updateArticles();
@@ -219,6 +261,8 @@ exports.createArticle = async (req, res, next) => {
 
 exports.getArticles = async (req, res, next) =>{
   filteredArt = articles
+  let urlObj = new url(req.url, "http://localhost:3002/");
+
   try{
     if(req.headers.accept === 'application/json'){
       res.status(200).json(articles);
@@ -230,7 +274,7 @@ exports.getArticles = async (req, res, next) =>{
           return; 
         }
         
-        let articlesPage = buildArticlesHTML(articles, html);
+        let articlesPage = buildArticlesHTML(articles, html, urlObj);
         res.writeHeader(200, {"Content-Type": "text/html"});  
         res.write(articlesPage);  
         res.end(); 
@@ -257,14 +301,14 @@ exports.deleteArticles = async (req, res, next) =>{
     if(req.headers.accept === 'application/json'){
       res.status(200).json(articles);
     }else{
-      fs.readFile(articlesPagePath, function (err, html) {
+      fs.readFile(deletePagePath, function (err, html) {
         if (err) {
           res.writeHead(404);
           res.end("404 Not Found: " + JSON.stringify(err));
           return; 
         }
         
-        let articlesPage = buildDeletePageHTML(articles, html);
+        let articlesPage = buildDeletePageHTML(articles, html, urlObj);
         res.writeHeader(200, {"Content-Type": "text/html"});  
         res.write(articlesPage);  
         res.end(); 
@@ -286,6 +330,7 @@ exports.editArticle = async (req, res, next) =>{
         res.end("404 Not Found: " + JSON.stringify(err));
         return; 
       }
+      console.log("Line 333: " + artNum)
       if(artNum == null){
         artNum = 0;
       }
@@ -300,22 +345,7 @@ exports.editArticle = async (req, res, next) =>{
   }
 };
 
-exports.getArticleById = async (req, res, next) =>{
-  try{
-    if(req.params.articleId < articles.length && req.params.articleId > 0){
-      let artNum = req.params.articleId;
-      let article = articles[artNum];
-      res.status(200).json(article);
-    }else{
-      res.status(404).json({message:"Not a correct Article Number!"})
-    }
-  }catch(err){
-    next(err);
-  }
-};
-
 exports.updateArticle = async (req, res, next) =>{
-  let updatedArt = {TITLE:"",AUTHOR:"",DATE:"", PUBLIC:"",CONTENT:""};
   try{
     let artNum = parseInt(req.body.articleNum)
     if(artNum < articles.length && artNum >= 0){
@@ -325,6 +355,7 @@ exports.updateArticle = async (req, res, next) =>{
         req.body.DATE != undefined &&
         req.body.PUBLIC != undefined &&
         req.body.CONTENT != undefined){
+          let updatedArt = {TITLE:"",AUTHOR:"",DATE:"", PUBLIC:"",CONTENT:"", id:artNum};
           
           updatedArt.TITLE = req.body.TITLE;
           updatedArt.AUTHOR = req.body.AUTHOR;
@@ -355,50 +386,6 @@ exports.updateArticle = async (req, res, next) =>{
     }else{
       res.status(404).json({message:"Not a correct Article Number!"})
     }
-  }catch(err){
-    next(err);
-  }
-};
-
-exports.filterByDateRange = async (req, res, next) =>{
-  try{
-    let start = req.body.start;
-    let end = req.body.end;
-    let startDate = new Date(start);
-    let endDate = new Date(end);
-    let dateStr;
-    let tempArt = [];
-    let i = 0;
-    for(var x in filteredArt){
-      dateStr = filteredArt[x].DATE;
-      let date = new Date(dateStr);
-      if(date >= startDate && date <= endDate){
-        tempArt[i] = filteredArt[x];
-        i=i+1;
-      }
-    }
-    filteredArt = tempArt
-    res.status(200).json(filteredArt);
-  }catch(err){
-    next(err);
-  }
-};
-
-exports.filterByTitle = async (req, res, next) =>{
-  try{
-    let filter = req.body.filter;
-    filteredArt = filteredArt.filter(x => x.TITLE.includes(filter));
-    res.status(200).json(filteredArt);
-  }catch(err){
-    next(err);
-  }
-};
-
-exports.filterByAuthor = async (req, res, next) =>{
-  try{
-    let filter = req.body.filter;
-    filteredArt = filteredArt.filter(x => x.AUTHOR.includes(filter));
-    res.status(200).json(filteredArt);
   }catch(err){
     next(err);
   }

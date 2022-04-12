@@ -15,6 +15,4 @@ router.post("/add", ArticleController.createArticle);
 
 router.get("/delete", ArticleController.deleteArticles);
 
-router.get("/:articleId", ArticleController.getArticleById);
-
 module.exports = router;
