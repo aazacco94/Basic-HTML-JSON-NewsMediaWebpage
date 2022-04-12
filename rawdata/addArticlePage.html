@@ -19,9 +19,9 @@
 		</font>
 	</h3>
   <br /><br /><br />
-	  <h2>Edit Article</h2>
+	  <h2>Add Article</h2>
 	  <p>
-		<form action="edit" method="post">
+		<form action="add" method="post">
 			<table border=1 cols=5 >
 				<tr>
 					<th>Title</th>
@@ -31,19 +31,18 @@
           <th>Content</th>
 				</tr>
 				<tr>
-					<td><input type="text" size="30" name="TITLE" value="dummyValue"></td>
+					<td><input type="text" size="30" name="TITLE" value="Article Title"></td>
 
-					<td><input type="text" size="12" name="AUTHOR" value="dummyValue"></td>
+					<td><input type="text" size="12" name="AUTHOR" value="John Smith"></td>
 
-					<td><input type="text" size="7" name="DATE" value="dummyValue"></td>
+					<td><input type="text" size="7" name="DATE" value="mm/dd/yyyy"></td>
 
-					<td><input type="text" size="1" name="PUBLIC" value="dummyValue"></td>
+					<td><input type="text" size="1" name="PUBLIC" value="T"></td>
 
-					<td><input type="text" size="100" name="CONTENT" value="dummyValue"></td>
+					<td><input type="text" size="100" name="CONTENT" value="New Content"></td>
 				</tr>
 			</table>
-      <input type="hidden" id="articleNum" name="articleNum" value="dummyValue">
-			<input type="submit" value="Update"><input type="reset">
+			<input type="submit" value="Add"><input type="reset">
 		</form>
 	  </p>
     <br /><br /><br /><br /><br /><br /><br />

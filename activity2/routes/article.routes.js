@@ -9,11 +9,12 @@ router.post("/edit", ArticleController.updateArticle);
 
 router.get("/edit", ArticleController.editArticle);
 
-router.get("/add", ArticleController.createArticle);
+router.get("/add", ArticleController.addArticlePage);
+
+router.post("/add", ArticleController.createArticle);
+
+router.get("/delete", ArticleController.deleteArticles);
 
 router.get("/:articleId", ArticleController.getArticleById);
-
-
-router.delete("/:articleId", ArticleController.deleteArticle);
 
 module.exports = router;

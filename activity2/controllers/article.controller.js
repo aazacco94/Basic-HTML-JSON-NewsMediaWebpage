@@ -4,6 +4,7 @@ const url = require('url').URL;
 const newsPath = './rawdata/news.json';
 const articlesPagePath = './rawdata/articlespage.html';
 const editPagePath = './rawdata/editArticlesPage.html';
+const addPagePath = './rawdata/addArticlePage.html';
 let news, articles, filteredArt, rawdata;
 
 rawdata = fs.readFileSync(newsPath);
@@ -70,7 +71,36 @@ function buildEditHTML(jsonData, html, artNum){
     "</tr>";
   }
 
-  newHTML = newHTML + '</table><input type="submit" value="Edit Article"></form><span><a href="/articles/add">Add More</a></span><br><br>' + htmlArr[1];
+  newHTML = newHTML + '</table><input type="submit" value="Edit Article"></form><br><br><span><a href="/articles/add">Add Articles</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/articles/delete">Delete Articles</a></span><br><br>' + htmlArr[1];
+  return newHTML;
+}
+
+function buildAddHTML(jsonData, html){
+  let htmlStr = html.toString();
+  let htmlArr = htmlStr.split("<br /><br /><br /><br /><br /><br /><br />");
+  let newHTML = htmlArr[0];
+
+  newHTML = newHTML + '<form action="edit" method="get"><table border=1 cols=5><tr><th>Select</th><th>Title</th><th>Author</th><th>Date</th><th>Content</th></tr>';
+
+  if(jsonData.length > 0){
+    for(var i in jsonData){
+      newHTML = newHTML + 
+      "<tr>"+
+      '<td><input type="radio" id="'+i+'" name="articleRadio" value="'+i+'"/></td>'+
+      "<td>"+jsonData[i].TITLE+"</td>"+
+      "<td>"+jsonData[i].AUTHOR+"</td>"+
+      "<td>"+jsonData[i].DATE+"</td>"+
+      "<td>"+jsonData[i].CONTENT+"</td>"+
+      "</tr>";
+    }
+  }else{
+    newHTML = newHTML + 
+    "<tr>"+
+    "<td>No Articles!</td>"+
+    "</tr>";
+  }
+
+  newHTML = newHTML + '</table><input type="submit" value="Edit Article"></form><br><br><span><a href="/articles/delete">Delete Articles</a></span><br><br>' + htmlArr[1];
   return newHTML;
 }
 
@@ -99,10 +129,57 @@ function buildArticlesHTML(jsonData, html){
     "</tr>";
   }
 
-  newHTML = newHTML + '</table><input type="submit" value="Edit Article"></form><span><a href="/articles/add">Add More</a></span><br><br>' + htmlArr[1];
+  newHTML = newHTML + '</table><input type="submit" value="Edit Article"></form><br><br><span><a href="/articles/add">Add Articles</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/articles/delete">Delete Articles</a></span><br><br>' + htmlArr[1];
   return newHTML;
 }
 
+function buildDeletePageHTML(jsonData, html){
+  let htmlStr = html.toString();
+  let htmlArr = htmlStr.split("<br /><br /><br /><br /><br /><br /><br />");
+  let newHTML = htmlArr[0];
+
+  newHTML = newHTML + '<form action="delete" method="get"><table border=1 cols=5><tr><th>Select</th><th>Title</th><th>Author</th><th>Date</th><th>Content</th></tr>';
+
+  if(jsonData.length > 0){
+    for(var i in jsonData){
+      newHTML = newHTML + 
+      "<tr>"+
+      '<td><input type="radio" id="'+i+'" name="articleRadio" value="'+i+'"/></td>'+
+      "<td>"+jsonData[i].TITLE+"</td>"+
+      "<td>"+jsonData[i].AUTHOR+"</td>"+
+      "<td>"+jsonData[i].DATE+"</td>"+
+      "<td>"+jsonData[i].CONTENT+"</td>"+
+      "</tr>";
+    }
+  }else{
+    newHTML = newHTML + 
+    "<tr>"+
+    "<td>No Articles!</td>"+
+    "</tr>";
+  }
+
+  newHTML = newHTML + '</table><input type="submit" value="Delete Article"></form><br><br><span><a href="/articles/add">Add Articles</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/articles/edit?">Edit Articles</a></span><br><br>' + htmlArr[1];
+  return newHTML;
+}
+
+exports.addArticlePage = async (req, res, next) => {
+  try{
+    fs.readFile(addPagePath, function (err, html) {
+      if (err) {
+        res.writeHead(404);
+        res.end("404 Not Found: " + JSON.stringify(err));
+        return; 
+      }
+      
+      let articlesPage = buildAddHTML(articles, html);
+      res.writeHeader(200, {"Content-Type": "text/html"});  
+      res.write(articlesPage);  
+      res.end(); 
+    });
+  }catch(err){
+    next(err);
+  }
+}
 
 exports.createArticle = async (req, res, next) => {
   try{
@@ -116,7 +193,22 @@ exports.createArticle = async (req, res, next) => {
         articles.push(article);
         filteredArt = articles
         updateArticles();
-        res.status(200).json(articles);
+        if(req.headers.accept === 'application/json'){
+          res.status(200).json(articles);
+        }else{
+          fs.readFile(addPagePath, function (err, html) {
+            if (err) {
+              res.writeHead(404);
+              res.end("404 Not Found: " + JSON.stringify(err));
+              return; 
+            }
+            
+            let articlesPage = buildAddHTML(articles, html);
+            res.writeHeader(200, {"Content-Type": "text/html"});  
+            res.write(articlesPage);  
+            res.end(); 
+          });
+        }
       }else{
         res.status(400).json({message:"All fields are required to create an Article!"})
       }
@@ -149,27 +241,60 @@ exports.getArticles = async (req, res, next) =>{
   }
 };
 
-exports.editArticle = async (req, res, next) =>{
-  filteredArt = articles
+function deleteArticle(artNum){
+  articles[artNum] = "";
+  articles = articles.filter(function(filtered){
+    return filtered !== "";
+  })
+  updateArticles();
+}
+
+exports.deleteArticles = async (req, res, next) =>{
   let urlObj = new url(req.url, "http://localhost:3002/");
-  let artNum = urlObj.searchParams.get("articleRadio")
+  let artNum = urlObj.searchParams.get("articleRadio");
   try{
+    deleteArticle(artNum);
     if(req.headers.accept === 'application/json'){
       res.status(200).json(articles);
     }else{
-      fs.readFile(editPagePath, function (err, html) {
+      fs.readFile(articlesPagePath, function (err, html) {
         if (err) {
           res.writeHead(404);
           res.end("404 Not Found: " + JSON.stringify(err));
           return; 
         }
         
-        let articlesPage = buildEditHTML(articles, html, artNum);
+        let articlesPage = buildDeletePageHTML(articles, html);
         res.writeHeader(200, {"Content-Type": "text/html"});  
         res.write(articlesPage);  
         res.end(); 
       });
     }
+  }catch(err){
+    next(err);
+  }
+};
+
+exports.editArticle = async (req, res, next) =>{
+  filteredArt = articles
+  let urlObj = new url(req.url, "http://localhost:3002/");
+  let artNum = urlObj.searchParams.get("articleRadio");
+  try{
+    fs.readFile(editPagePath, function (err, html) {
+      if (err) {
+        res.writeHead(404);
+        res.end("404 Not Found: " + JSON.stringify(err));
+        return; 
+      }
+      if(artNum == null){
+        artNum = 0;
+      }
+      
+      let articlesPage = buildEditHTML(articles, html, artNum);
+      res.writeHeader(200, {"Content-Type": "text/html"});  
+      res.write(articlesPage);  
+      res.end(); 
+    });
   }catch(err){
     next(err);
   }
@@ -227,22 +352,6 @@ exports.updateArticle = async (req, res, next) =>{
         }else{
           res.status(400).json({message:"All fields are required to create an Article!"})
         }
-    }else{
-      res.status(404).json({message:"Not a correct Article Number!"})
-    }
-  }catch(err){
-    next(err);
-  }
-};
-
-exports.deleteArticle = async (req, res, next) =>{
-  try{
-    if(req.params.articleId < articles.length && req.params.articleId > 0){
-      let artNum = req.params.articleId;
-      articles[artNum] = "";
-      articles = articles.filter(x => x !== "");
-      updateArticles();
-      res.status(200).json(articles);
     }else{
       res.status(404).json({message:"Not a correct Article Number!"})
     }
