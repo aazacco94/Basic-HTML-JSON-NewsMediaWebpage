@@ -5,13 +5,14 @@ const router = express.Router();
 
 router.get("/", ArticleController.getArticles);
 
+router.post("/edit", ArticleController.updateArticle);
+
 router.get("/edit", ArticleController.editArticle);
 
 router.get("/add", ArticleController.createArticle);
 
 router.get("/:articleId", ArticleController.getArticleById);
 
-router.put("/:articleId", ArticleController.updateArticle);
 
 router.delete("/:articleId", ArticleController.deleteArticle);
 

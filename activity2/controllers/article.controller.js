@@ -46,9 +46,11 @@ function buildEditHTML(jsonData, html, artNum){
                  editHtml[3] + article.PUBLIC+
                  editHtml[4] + article.CONTENT + editHtml[5];
 
+  testHTML = testHTML + artNum+editHtml[6];
+
   newHTML = testHTML;
 
-  newHTML = newHTML + '<form action="/articles/edit" method="get"><table border=1 cols=5><tr><th>Select</th><th>Title</th><th>Author</th><th>Date</th><th>Content</th></tr>';
+  newHTML = newHTML + '<form action="edit" method="get"><table border=1 cols=5><tr><th>Select</th><th>Title</th><th>Author</th><th>Date</th><th>Content</th></tr>';
 
   if(jsonData.length > 0){
     for(var i in jsonData){
@@ -188,19 +190,40 @@ exports.getArticleById = async (req, res, next) =>{
 };
 
 exports.updateArticle = async (req, res, next) =>{
+  let updatedArt = {TITLE:"",AUTHOR:"",DATE:"", PUBLIC:"",CONTENT:""};
   try{
-    if(req.params.articleId < articles.length && req.params.articleId > 0){
+    let artNum = parseInt(req.body.articleNum)
+    if(artNum < articles.length && artNum >= 0){
       if(
         req.body.TITLE != undefined &&
         req.body.AUTHOR != undefined &&
         req.body.DATE != undefined &&
         req.body.PUBLIC != undefined &&
         req.body.CONTENT != undefined){
-          let artNum = req.params.articleId;
-          let updatedArt = req.body;
+          
+          updatedArt.TITLE = req.body.TITLE;
+          updatedArt.AUTHOR = req.body.AUTHOR;
+          updatedArt.DATE = req.body.DATE;
+          updatedArt.PUBLIC = req.body.PUBLIC;
+          updatedArt.CONTENT = req.body.CONTENT;
           articles[artNum] = updatedArt;
           updateArticles();
-          res.status(200).json(updatedArt);
+          if(req.headers.accept =='application/json'){
+            res.status(200).json(updatedArt);
+          }else{
+            fs.readFile(editPagePath, function (err, html) {
+              if (err) {
+                res.writeHead(404);
+                res.end("404 Not Found: " + JSON.stringify(err));
+                return; 
+              }
+
+              let articlesPage = buildEditHTML(articles, html, artNum);
+              res.writeHeader(200, {"Content-Type": "text/html"});  
+              res.write(articlesPage);  
+              res.end(); 
+            });
+          }
         }else{
           res.status(400).json({message:"All fields are required to create an Article!"})
         }

@@ -2,11 +2,12 @@ const express = require("express");
 const ArticleRoutes = require("./routes/article.routes");
 const fs = require('fs');
 const mainPagePath = './rawdata/mainpage.html';
-const articlesPagePath = './rawdata/articlespage.html';
+var bodyParser = require('body-parser');
 
 const app = express();
-
-app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+// app.use(express.json());
 
 app.use("/articles", ArticleRoutes);
 
