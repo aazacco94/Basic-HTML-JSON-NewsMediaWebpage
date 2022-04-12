@@ -4,7 +4,8 @@
   "description": "- npm init --yes\r - npm install express --save",
   "main": "index.js",
   "scripts": {
-    "act1": "node activity1/NewsAPI.js"
+    "act1": "node activity1/NewsAPI.js",
+    "act2": "node activity2/NewsApp2.js"
   },
   "keywords": [],
   "author": "",
