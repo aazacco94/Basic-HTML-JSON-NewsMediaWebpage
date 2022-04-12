@@ -1,7 +1,9 @@
 'use strict'
 const fs = require('fs');
+const url = require('url').URL;
 const newsPath = './rawdata/news.json';
 const articlesPagePath = './rawdata/articlespage.html';
+const editPagePath = './rawdata/editArticlesPage.html';
 let news, articles, filteredArt, rawdata;
 
 rawdata = fs.readFileSync(newsPath);
@@ -21,13 +23,32 @@ async function updateArticles(){
   }
 }
 
+function getStoredArticles(){
+  rawdata = fs.readFileSync(newsPath);
+  news = JSON.parse(rawdata);
+  articles = news.NEWS.ARTICLE;
+  filteredArt = articles;
+  return articles;
+}
 
-function buildArticlesHTML(jsonData, html){
+function buildEditHTML(jsonData, html, artNum){
   let htmlStr = html.toString();
   let htmlArr = htmlStr.split("<br /><br /><br /><br /><br /><br /><br />");
   let newHTML = htmlArr[0];
+  let articles = getStoredArticles();
+  let article = articles[artNum];
 
-  newHTML = newHTML + '<form action="editStory" method="get"><table><tr><th>Select</th><th>Title</th><th>Author</th><th>Date</th><th>Content</th></tr>';
+  let editHtml = newHTML.split('dummyValue');
+
+  let testHTML = editHtml[0] + article.TITLE+
+                 editHtml[1] + article.AUTHOR+
+                 editHtml[2] + article.DATE+
+                 editHtml[3] + article.PUBLIC+
+                 editHtml[4] + article.CONTENT + editHtml[5];
+
+  newHTML = testHTML;
+
+  newHTML = newHTML + '<form action="/articles/edit" method="get"><table border=1 cols=5><tr><th>Select</th><th>Title</th><th>Author</th><th>Date</th><th>Content</th></tr>';
 
   if(jsonData.length > 0){
     for(var i in jsonData){
@@ -47,7 +68,36 @@ function buildArticlesHTML(jsonData, html){
     "</tr>";
   }
 
-  newHTML = newHTML + '</table><input type="submit" value="Edit Article"></form><span><a href="/addArticle">Add More</a></span><br><br>' + htmlArr[1];
+  newHTML = newHTML + '</table><input type="submit" value="Edit Article"></form><span><a href="/articles/add">Add More</a></span><br><br>' + htmlArr[1];
+  return newHTML;
+}
+
+function buildArticlesHTML(jsonData, html){
+  let htmlStr = html.toString();
+  let htmlArr = htmlStr.split("<br /><br /><br /><br /><br /><br /><br />");
+  let newHTML = htmlArr[0];
+
+  newHTML = newHTML + '<form action="articles/edit" method="get"><table border=1 cols=5><tr><th>Select</th><th>Title</th><th>Author</th><th>Date</th><th>Content</th></tr>';
+
+  if(jsonData.length > 0){
+    for(var i in jsonData){
+      newHTML = newHTML + 
+      "<tr>"+
+      '<td><input type="radio" id="'+i+'" name="articleRadio" value="'+i+'"/></td>'+
+      "<td>"+jsonData[i].TITLE+"</td>"+
+      "<td>"+jsonData[i].AUTHOR+"</td>"+
+      "<td>"+jsonData[i].DATE+"</td>"+
+      "<td>"+jsonData[i].CONTENT+"</td>"+
+      "</tr>";
+    }
+  }else{
+    newHTML = newHTML + 
+    "<tr>"+
+    "<td>No Articles!</td>"+
+    "</tr>";
+  }
+
+  newHTML = newHTML + '</table><input type="submit" value="Edit Article"></form><span><a href="/articles/add">Add More</a></span><br><br>' + htmlArr[1];
   return newHTML;
 }
 
@@ -87,6 +137,32 @@ exports.getArticles = async (req, res, next) =>{
         }
         
         let articlesPage = buildArticlesHTML(articles, html);
+        res.writeHeader(200, {"Content-Type": "text/html"});  
+        res.write(articlesPage);  
+        res.end(); 
+      });
+    }
+  }catch(err){
+    next(err);
+  }
+};
+
+exports.editArticle = async (req, res, next) =>{
+  filteredArt = articles
+  let urlObj = new url(req.url, "http://localhost:3002/");
+  let artNum = urlObj.searchParams.get("articleRadio")
+  try{
+    if(req.headers.accept === 'application/json'){
+      res.status(200).json(articles);
+    }else{
+      fs.readFile(editPagePath, function (err, html) {
+        if (err) {
+          res.writeHead(404);
+          res.end("404 Not Found: " + JSON.stringify(err));
+          return; 
+        }
+        
+        let articlesPage = buildEditHTML(articles, html, artNum);
         res.writeHeader(200, {"Content-Type": "text/html"});  
         res.write(articlesPage);  
         res.end(); 
