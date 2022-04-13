@@ -1,6 +1,7 @@
 const express = require("express");
 const ArticleRoutes = require("./routes/article.routes");
 const PublicRoutes = require("./routes/public.routes");
+const AuthenticateRoutes = require("./routes/authenticate.routes");
 const fs = require('fs');
 const mainPagePath = './rawdata3/mainpage.html';
 const authPagePath = './rawdata3/authPage.html';
@@ -11,6 +12,22 @@ const app = express();
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+function addUserCookie(html, username, role){
+  let htmlStr = html.toString();
+  let loggedArr;
+  if(role != 'Guest'){
+    loggedArr = htmlStr.split('Welcome dummyUser,');
+    htmlStr = loggedArr[0] + `<a href="/auth">Welcome ${username},</a>`+loggedArr[1];
+  } else {
+    loggedArr = htmlStr.split('Welcome dummyUser,');
+    htmlStr = loggedArr[0] + '<a href="/auth">Switch Role</a>' +loggedArr[1];
+  }
+
+  loggedArr = htmlStr.split('dummyRole');
+  htmlStr = loggedArr[0] + role +loggedArr[1];
+  return htmlStr;  
+}
 
 app.use('/', function(req, res, next){
   console.log(req.cookies);
@@ -29,6 +46,7 @@ app.use('/', function(req, res, next){
 
 app.use("/articles", ArticleRoutes);
 app.use("/public", PublicRoutes);
+app.use("/auth", AuthenticateRoutes);
 
 app.use((error, req, res, next) => {
   console.log("An Error has been thrown!")
@@ -36,12 +54,14 @@ app.use((error, req, res, next) => {
 });
 
 app.post("/", (req, res) =>{
-  res.cookie('hasVisited', req.body.Username, { 
+  let username = req.body.Username;
+  let role = req.body.Role;
+  res.cookie('hasVisited', username, { 
     maxAge: 60*60*1000, 
     httpOnly: true, 
     path:'/'
   });
-  res.cookie('Role', req.body.Role, { 
+  res.cookie('Role', role, { 
     maxAge: 60*60*1000, 
     httpOnly: true, 
     path:'/'
@@ -52,13 +72,9 @@ app.post("/", (req, res) =>{
       res.end("404 Not Found: " + JSON.stringify(err));
       return; 
     }
-    let htmlStr = html.toString();
-    let loggedArr = htmlStr.split('dummyUser');
-    let loggedHTML = loggedArr[0] + req.body.Username +loggedArr[1];
-    loggedArr = htmlStr.split('dummyRole');
-    loggedHTML = loggedArr[0] + req.body.Role +loggedArr[1];    
+    let htmlStr = addUserCookie(html, req.cookies.hasVisited, req.cookies.Role)   
     res.writeHeader(200, {"Content-Type": "text/html"});  
-    res.write(loggedHTML);  
+    res.write(htmlStr);  
     res.end(); 
   });
 });
@@ -82,13 +98,10 @@ app.get("/", (req, res) =>{
         res.end("404 Not Found: " + JSON.stringify(err));
         return; 
       }
-      let htmlStr = html.toString();
-      let loggedArr = htmlStr.split('dummyUser');
-      let loggedHTML = loggedArr[0] + req.cookies.hasVisited +loggedArr[1];
-      loggedArr = loggedHTML.split('dummyRole');
-      loggedHTML = loggedArr[0] + req.cookies.Role +loggedArr[1];     
+      let htmlStr = addUserCookie(html, req.cookies.hasVisited, req.cookies.Role)   
+     
       res.writeHeader(200, {"Content-Type": "text/html"});  
-      res.write(loggedHTML);
+      res.write(htmlStr);
       res.end(); 
     });
   }

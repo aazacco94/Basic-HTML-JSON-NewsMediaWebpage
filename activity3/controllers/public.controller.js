@@ -18,8 +18,14 @@ function getPublicArticles(){
 
 function addUserCookie(html, username, role){
   let htmlStr = html.toString();
-  let loggedArr = htmlStr.split('dummyUser');
-  htmlStr = loggedArr[0] + username +loggedArr[1];
+  let loggedArr;
+  if(role != 'Guest'){
+    loggedArr = htmlStr.split('Welcome dummyUser,');
+    htmlStr = loggedArr[0] + `<a href="/auth">Welcome ${username},</a>`+loggedArr[1];
+  } else {
+    loggedArr = htmlStr.split('Welcome dummyUser,');
+    htmlStr = loggedArr[0] + '<a href="/auth">Switch Role</a>' +loggedArr[1];
+  }
 
   loggedArr = htmlStr.split('dummyRole');
   htmlStr = loggedArr[0] + role +loggedArr[1];
