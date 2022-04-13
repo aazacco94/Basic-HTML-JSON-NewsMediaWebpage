@@ -6,12 +6,11 @@ const articlesPagePath = './rawdata/articlespage.html';
 const editPagePath = './rawdata/editArticlesPage.html';
 const addPagePath = './rawdata/addArticlePage.html';
 const deletePagePath = './rawdata/deleteArticlesPage.html';
-let news, articles, filteredArt, rawdata;
+let news, articles, rawdata;
 
 rawdata = fs.readFileSync(newsPath);
 news = JSON.parse(rawdata);
 articles = news.NEWS.ARTICLE;
-filteredArt = articles;
 
 async function updateArticles(){
   news.NEWS.ARTICLE = articles;
@@ -29,7 +28,6 @@ function getStoredArticles(){
   rawdata = fs.readFileSync(newsPath);
   news = JSON.parse(rawdata);
   articles = news.NEWS.ARTICLE;
-  filteredArt = articles;
   return articles;
 }
 
@@ -244,7 +242,6 @@ exports.createArticle = async (req, res, next) => {
         article.id = articles.length;
         console.log("New Article: "+ article);
         articles.push(article);
-        filteredArt = articles
         updateArticles();
         if(req.headers.accept === 'application/json'){
           res.status(200).json(articles);
@@ -271,7 +268,6 @@ exports.createArticle = async (req, res, next) => {
 };
 
 exports.getArticles = async (req, res, next) =>{
-  filteredArt = articles
   let urlObj = new url(req.url, "http://localhost:3002/");
 
   try{
@@ -331,7 +327,6 @@ exports.deleteArticles = async (req, res, next) =>{
 };
 
 exports.editArticle = async (req, res, next) =>{
-  filteredArt = articles
   let urlObj = new url(req.url, "http://localhost:3002/");
   let artNum = urlObj.searchParams.get("articleRadio");
   try{
