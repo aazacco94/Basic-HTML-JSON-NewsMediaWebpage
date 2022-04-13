@@ -19,6 +19,10 @@ app.use('/', function(req, res, next){
                { maxAge: 60*60*1000, 
                  httpOnly: true, 
                  path:'/'});
+    res.cookie('Role', '1', 
+    { maxAge: 60*60*1000, 
+      httpOnly: true, 
+      path:'/'});
   }
   next();
 });
@@ -33,6 +37,11 @@ app.use((error, req, res, next) => {
 
 app.post("/", (req, res) =>{
   res.cookie('hasVisited', req.body.Username, { 
+    maxAge: 60*60*1000, 
+    httpOnly: true, 
+    path:'/'
+  });
+  res.cookie('Role', req.body.Role, { 
     maxAge: 60*60*1000, 
     httpOnly: true, 
     path:'/'

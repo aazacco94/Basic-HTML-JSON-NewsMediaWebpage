@@ -16,15 +16,18 @@ function getPublicArticles(){
   return articles;
 }
 
-function addUserCookie(html, username){
+function addUserCookie(html, username, role){
   let htmlStr = html.toString();
   let loggedArr = htmlStr.split('dummyUser');
   htmlStr = loggedArr[0] + username +loggedArr[1];
+
+  loggedArr = htmlStr.split('dummyRole');
+  htmlStr = loggedArr[0] + role +loggedArr[1];
   return htmlStr;  
 }
 
-function buildPublicHTML(jsonData, html, urlObj, username){
-  let htmlStr = addUserCookie(html, username);    
+function buildPublicHTML(jsonData, html, urlObj, username, role){
+  let htmlStr = addUserCookie(html, username, role);    
 
   let htmlArr = htmlStr.split("<br /><br /><br /><br /><br /><br /><br />");
   let newHTML = htmlArr[0];
@@ -86,7 +89,7 @@ exports.getArticles = async (req, res, next) =>{
         }
         let articles = getPublicArticles();
         
-        let articlesPage = buildPublicHTML(articles, html, urlObj, req.cookies.hasVisited);
+        let articlesPage = buildPublicHTML(articles, html, urlObj, req.cookies.hasVisited, req.cookies.Role);
         res.writeHeader(200, {"Content-Type": "text/html"});  
         res.write(articlesPage);  
         res.end(); 
