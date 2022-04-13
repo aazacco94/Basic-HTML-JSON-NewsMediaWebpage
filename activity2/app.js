@@ -20,7 +20,8 @@ app.use('/', function(req, res, next){
                  path:'/'});
   }
   next();
-})
+});
+
 app.use("/articles", ArticleRoutes);
 
 app.use((error, req, res, next) => {
@@ -39,16 +40,18 @@ app.post("/", (req, res) =>{
       res.writeHead(404);
       res.end("404 Not Found: " + JSON.stringify(err));
       return; 
-    }    
+    }
+    let htmlStr = html.toString();
+    let loggedArr = htmlStr.split('dummyUser');
+    let loggedHTML = loggedArr[0] + req.body.Username +loggedArr[1];    
     res.writeHeader(200, {"Content-Type": "text/html"});  
-    res.write(html);  
+    res.write(loggedHTML);  
     res.end(); 
   });
 });
 
 app.get("/", (req, res) =>{
   if (req.cookies.hasVisited === '1'){
-    console.log("made it here!");
     fs.readFile(authPagePath, function (err, html) {
       if (err) {
         res.writeHead(404);
@@ -60,15 +63,17 @@ app.get("/", (req, res) =>{
       res.end(); 
     });
   }else{
-    console.log("Made it passed cookie check!")
     fs.readFile(mainPagePath, function (err, html) {
       if (err) {
         res.writeHead(404);
         res.end("404 Not Found: " + JSON.stringify(err));
         return; 
-      }    
+      }
+      let htmlStr = html.toString();
+      let loggedArr = htmlStr.split('dummyUser');
+      let loggedHTML = loggedArr[0] + req.cookies.hasVisited +loggedArr[1];    
       res.writeHeader(200, {"Content-Type": "text/html"});  
-      res.write(html);  
+      res.write(loggedHTML);
       res.end(); 
     });
   }

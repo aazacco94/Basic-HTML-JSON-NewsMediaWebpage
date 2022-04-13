@@ -33,8 +33,16 @@ function getStoredArticles(){
   return articles;
 }
 
-function buildEditHTML(jsonData, html, artNum){
+function addUserCookie(html, username){
   let htmlStr = html.toString();
+  let loggedArr = htmlStr.split('dummyUser');
+  htmlStr = loggedArr[0] + username +loggedArr[1];
+  return htmlStr;  
+}
+
+function buildEditHTML(jsonData, html, artNum, username){
+  let htmlStr = addUserCookie(html, username);    
+
   let htmlArr = htmlStr.split("<br /><br /><br /><br /><br /><br /><br />");
   let newHTML = htmlArr[0];
   let articles = getStoredArticles();
@@ -76,8 +84,9 @@ function buildEditHTML(jsonData, html, artNum){
   return newHTML;
 }
 
-function buildAddHTML(jsonData, html){
-  let htmlStr = html.toString();
+function buildAddHTML(jsonData, html, username){
+  let htmlStr = addUserCookie(html, username);     
+
   let htmlArr = htmlStr.split("<br /><br /><br /><br /><br /><br /><br />");
   let newHTML = htmlArr[0];
 
@@ -105,8 +114,9 @@ function buildAddHTML(jsonData, html){
   return newHTML;
 }
 
-function buildArticlesHTML(jsonData, html, urlObj){
-  let htmlStr = html.toString();
+function buildArticlesHTML(jsonData, html, urlObj, username){
+  let htmlStr = addUserCookie(html, username);    
+
   let htmlArr = htmlStr.split("<br /><br /><br /><br /><br /><br /><br />");
   let newHTML = htmlArr[0];
   let titleFilter = urlObj.searchParams.get("TITLE");
@@ -153,8 +163,9 @@ function buildArticlesHTML(jsonData, html, urlObj){
   return newHTML;
 }
 
-function buildDeletePageHTML(jsonData, html, urlObj){
-  let htmlStr = html.toString();
+function buildDeletePageHTML(jsonData, html, urlObj, username){
+  let htmlStr = addUserCookie(html, username);    
+
   let htmlArr = htmlStr.split("<br /><br /><br /><br /><br /><br /><br />");
   let newHTML = htmlArr[0];
 
@@ -211,7 +222,7 @@ exports.addArticlePage = async (req, res, next) => {
         return; 
       }
       
-      let articlesPage = buildAddHTML(articles, html);
+      let articlesPage = buildAddHTML(articles, html, req.cookies.hasVisited);
       res.writeHeader(200, {"Content-Type": "text/html"});  
       res.write(articlesPage);  
       res.end(); 
@@ -245,7 +256,7 @@ exports.createArticle = async (req, res, next) => {
               return; 
             }
             
-            let articlesPage = buildAddHTML(articles, html);
+            let articlesPage = buildAddHTML(articles, html, req.cookies.hasVisited);
             res.writeHeader(200, {"Content-Type": "text/html"});  
             res.write(articlesPage);  
             res.end(); 
@@ -274,7 +285,7 @@ exports.getArticles = async (req, res, next) =>{
           return; 
         }
         
-        let articlesPage = buildArticlesHTML(articles, html, urlObj);
+        let articlesPage = buildArticlesHTML(articles, html, urlObj, req.cookies.hasVisited);
         res.writeHeader(200, {"Content-Type": "text/html"});  
         res.write(articlesPage);  
         res.end(); 
@@ -308,7 +319,7 @@ exports.deleteArticles = async (req, res, next) =>{
           return; 
         }
         
-        let articlesPage = buildDeletePageHTML(articles, html, urlObj);
+        let articlesPage = buildDeletePageHTML(articles, html, urlObj, req.cookies.hasVisited);
         res.writeHeader(200, {"Content-Type": "text/html"});  
         res.write(articlesPage);  
         res.end(); 
@@ -335,7 +346,7 @@ exports.editArticle = async (req, res, next) =>{
         artNum = 0;
       }
       
-      let articlesPage = buildEditHTML(articles, html, artNum);
+      let articlesPage = buildEditHTML(articles, html, artNum, req.cookies.hasVisited);
       res.writeHeader(200, {"Content-Type": "text/html"});  
       res.write(articlesPage);  
       res.end(); 
@@ -374,7 +385,7 @@ exports.updateArticle = async (req, res, next) =>{
                 return; 
               }
 
-              let articlesPage = buildEditHTML(articles, html, artNum);
+              let articlesPage = buildEditHTML(articles, html, artNum, req.cookies.hasVisited);
               res.writeHeader(200, {"Content-Type": "text/html"});  
               res.write(articlesPage);  
               res.end(); 
