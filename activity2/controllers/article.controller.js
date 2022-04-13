@@ -18,7 +18,6 @@ async function updateArticles(){
 
   try{
     fs.writeFileSync(newsPath, newsStr);
-    console.log('File has been updated!');
   }catch(err){
     next(err);
   }
@@ -240,7 +239,6 @@ exports.createArticle = async (req, res, next) => {
       req.body.CONTENT != undefined){
         const article = req.body;
         article.id = articles.length;
-        console.log("New Article: "+ article);
         articles.push(article);
         updateArticles();
         if(req.headers.accept === 'application/json'){

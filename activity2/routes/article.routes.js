@@ -2,7 +2,6 @@ const express = require("express");
 const ArticleController = require("../controllers/article.controller");
 const router = express.Router();
 
-
 router.get("/", ArticleController.getArticles);
 
 router.post("/edit", ArticleController.updateArticle);

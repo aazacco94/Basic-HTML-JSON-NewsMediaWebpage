@@ -1,5 +1,6 @@
 const express = require("express");
 const ArticleRoutes = require("./routes/article.routes");
+const PublicRoutes = require("./routes/public.routes");
 const fs = require('fs');
 const mainPagePath = './rawdata/mainpage.html';
 const authPagePath = './rawdata/authPage.html';
@@ -23,6 +24,7 @@ app.use('/', function(req, res, next){
 });
 
 app.use("/articles", ArticleRoutes);
+app.use("/public", PublicRoutes);
 
 app.use((error, req, res, next) => {
   console.log("An Error has been thrown!")
