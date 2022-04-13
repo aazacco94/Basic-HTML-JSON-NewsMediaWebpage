@@ -1,8 +1,8 @@
 'use strict'
 const fs = require('fs');
 const url = require('url').URL;
-const newsPath = './rawdata/news.json';
-const publicPagePath = './rawdata/publicPage.html';
+const newsPath = './rawdata3/news.json';
+const publicPagePath = './rawdata3/publicPage.html';
 
 let news, articles, rawdata;
 

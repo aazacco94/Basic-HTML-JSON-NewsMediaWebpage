@@ -2,8 +2,8 @@ const express = require("express");
 const ArticleRoutes = require("./routes/article.routes");
 const PublicRoutes = require("./routes/public.routes");
 const fs = require('fs');
-const mainPagePath = './rawdata/mainpage.html';
-const authPagePath = './rawdata/authPage.html';
+const mainPagePath = './rawdata3/mainpage.html';
+const authPagePath = './rawdata3/authPage.html';
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 
@@ -85,7 +85,7 @@ app.get("/", (req, res) =>{
       let htmlStr = html.toString();
       let loggedArr = htmlStr.split('dummyUser');
       let loggedHTML = loggedArr[0] + req.cookies.hasVisited +loggedArr[1];
-      loggedArr = htmlStr.split('dummyRole');
+      loggedArr = loggedHTML.split('dummyRole');
       loggedHTML = loggedArr[0] + req.cookies.Role +loggedArr[1];     
       res.writeHeader(200, {"Content-Type": "text/html"});  
       res.write(loggedHTML);

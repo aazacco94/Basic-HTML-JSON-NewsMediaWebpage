@@ -1,11 +1,11 @@
 'use strict'
 const fs = require('fs');
 const url = require('url').URL;
-const newsPath = './rawdata/news.json';
-const articlesPagePath = './rawdata/articlespage.html';
-const editPagePath = './rawdata/editArticlesPage.html';
-const addPagePath = './rawdata/addArticlePage.html';
-const deletePagePath = './rawdata/deleteArticlesPage.html';
+const newsPath = './rawdata3/news.json';
+const articlesPagePath = './rawdata3/articlespage.html';
+const editPagePath = './rawdata3/editArticlesPage.html';
+const addPagePath = './rawdata3/addArticlePage.html';
+const deletePagePath = './rawdata3/deleteArticlesPage.html';
 let news, articles, rawdata;
 
 rawdata = fs.readFileSync(newsPath);
@@ -337,7 +337,6 @@ exports.editArticle = async (req, res, next) =>{
         res.end("404 Not Found: " + JSON.stringify(err));
         return; 
       }
-      console.log("Line 333: " + artNum)
       if(artNum == null){
         artNum = 0;
       }
