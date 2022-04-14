@@ -6,6 +6,12 @@ router.post("/", ArticleController.createArticle);
 
 router.get("/", ArticleController.getArticles);
 
+router.get("/filterDate/", ArticleController.filterByDateRange);
+
+router.get("/filterTitle/", ArticleController.filterByTitle);
+
+router.get("/filterAuthor/", ArticleController.filterByAuthor);
+
 router.get("/:articleId", ArticleController.getArticleById);
 
 router.put("/:articleId", ArticleController.updateArticle);

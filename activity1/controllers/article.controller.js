@@ -114,6 +114,7 @@ exports.filterByDateRange = async (req, res, next) =>{
     let dateStr;
     let tempArt = [];
     let i = 0;
+    filteredArt = articles;
     for(var x in filteredArt){
       dateStr = filteredArt[x].DATE;
       let date = new Date(dateStr);
@@ -131,8 +132,8 @@ exports.filterByDateRange = async (req, res, next) =>{
 
 exports.filterByTitle = async (req, res, next) =>{
   try{
-    let filter = req.body.filter;
-    filteredArt = filteredArt.filter(x => x.TITLE.includes(filter));
+    let filter = req.body.title;
+    filteredArt = articles.filter(x => x.TITLE.includes(filter));
     res.status(200).json(filteredArt);
   }catch(err){
     next(err);
@@ -141,8 +142,8 @@ exports.filterByTitle = async (req, res, next) =>{
 
 exports.filterByAuthor = async (req, res, next) =>{
   try{
-    let filter = req.body.filter;
-    filteredArt = filteredArt.filter(x => x.AUTHOR.includes(filter));
+    let filter = req.body.author;
+    filteredArt = articles.filter(x => x.AUTHOR.includes(filter));
     res.status(200).json(filteredArt);
   }catch(err){
     next(err);
