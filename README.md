@@ -5,6 +5,7 @@
 - I added an Admin role that can Edit/Delete/Add articles for all authors.
 - YOUTUBE DEMO: https://youtu.be/ZTfIc59gTk8
 - I included the postman workspace for activity1 in "lab4_aazacco/activity1/postmanWorkspace/SER421Lab4.postman_collection.json"
+- GITHUB: https://github.com/aazacco94/lab4_aazacco.git ,  access is private but I will add as collaborator upon request.
 
 ## How to run each activity:
 - For Activity 1 copy: npm run act1 
