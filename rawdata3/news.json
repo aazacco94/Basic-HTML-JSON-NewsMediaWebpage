@@ -56,6 +56,14 @@
                 "PUBLIC": "T",
                 "CONTENT": "I have made a grave mistake. I programmed an AI so intelligent it became a sentient life form. I am so aorry, we are all doomed.",
                 "id": 5
+            },
+            {
+                "TITLE": "Article Title",
+                "AUTHOR": "John Smith",
+                "DATE": "mm/dd/yyyy",
+                "PUBLIC": "T",
+                "CONTENT": "New Content",
+                "id": 7
             }
         ]
     }
