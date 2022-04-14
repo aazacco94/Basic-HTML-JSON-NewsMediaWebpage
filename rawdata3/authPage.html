@@ -29,7 +29,13 @@
 				</tr>
 				<tr>
 					<th>Role</th>
-					<td><input type="text" size="20" name="Role" value=""></td>
+					<td><input class="box" list="Roles" placeholder="Roles" size="20" name="Role" value=""></td>
+					<datalist  id="Roles">
+						<option value="Guest">
+						<option value="Subscriber">
+						<option value="Reporter">
+						<option value="Admin">
+					</datalist>
 				</tr>
         <tr>
           <td></td><td><input type="submit" value="Login"><input type="reset"></td>

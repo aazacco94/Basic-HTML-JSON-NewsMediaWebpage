@@ -6,7 +6,7 @@
   "scripts": {
     "act1": "node activity1/NewsAPI.js",
     "act2": "node activity2/NewsApp2.js",
-    "act3": "node activity3/NewsApp2.js"
+    "act3": "node activity3/NewsApp3.js"
   },
   "keywords": [],
   "author": "",

@@ -16,21 +16,30 @@ app.use(bodyParser.json());
 function addUserCookie(html, username, role){
   let htmlStr = html.toString();
   let loggedArr;
-  if(role != 'Guest'){
+  if(role == 'Reporter' || role == 'Admin'){
     loggedArr = htmlStr.split('Welcome dummyUser,');
     htmlStr = loggedArr[0] + `<a href="/auth">Welcome ${username},</a>`+loggedArr[1];
+  } else if(role === 'Subscriber'){
+    loggedArr = htmlStr.split('Welcome dummyUser,');
+    htmlStr = loggedArr[0] + `<a href="/auth">Welcome ${username},</a>`+loggedArr[1];
+
+    loggedArr = htmlStr.split('<a href="/articles">NEWS ARCHIVE</a>')
+    htmlStr = loggedArr[0]+loggedArr[1];
   } else {
     loggedArr = htmlStr.split('Welcome dummyUser,');
-    htmlStr = loggedArr[0] + '<a href="/auth">Switch Role</a>' +loggedArr[1];
+    htmlStr = loggedArr[0] + `<a href="/auth">Switch Account,</a>`+loggedArr[1];
+
+    loggedArr = htmlStr.split('<a href="/articles">NEWS ARCHIVE</a>')
+    htmlStr = loggedArr[0]+loggedArr[1];
   }
 
   loggedArr = htmlStr.split('dummyRole');
   htmlStr = loggedArr[0] + role +loggedArr[1];
+
   return htmlStr;  
 }
 
 app.use('/', function(req, res, next){
-  console.log(req.cookies);
   if (!req.cookies.hasVisited){
     res.cookie('hasVisited', '1', 
                { maxAge: 60*60*1000, 
@@ -66,6 +75,7 @@ app.post("/", (req, res) =>{
     httpOnly: true, 
     path:'/'
   });
+  console.log(`- ${username} has logged in.`)
   fs.readFile(mainPagePath, function (err, html) {
     if (err) {
       res.writeHead(404);
@@ -99,7 +109,7 @@ app.get("/", (req, res) =>{
         return; 
       }
       let htmlStr = addUserCookie(html, req.cookies.hasVisited, req.cookies.Role)   
-     
+      console.log(`- ${req.cookies.hasVisited} has returned to home page.`);
       res.writeHeader(200, {"Content-Type": "text/html"});  
       res.write(htmlStr);
       res.end(); 

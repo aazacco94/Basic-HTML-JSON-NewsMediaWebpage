@@ -19,16 +19,26 @@ function getPublicArticles(){
 function addUserCookie(html, username, role){
   let htmlStr = html.toString();
   let loggedArr;
-  if(role != 'Guest'){
+  if(role == 'Reporter' || role == 'Admin'){
     loggedArr = htmlStr.split('Welcome dummyUser,');
     htmlStr = loggedArr[0] + `<a href="/auth">Welcome ${username},</a>`+loggedArr[1];
+  } else if(role === 'Subscriber'){
+    loggedArr = htmlStr.split('Welcome dummyUser,');
+    htmlStr = loggedArr[0] + `<a href="/auth">Welcome ${username},</a>`+loggedArr[1];
+
+    loggedArr = htmlStr.split('<a href="/articles">NEWS ARCHIVE</a>')
+    htmlStr = loggedArr[0]+loggedArr[1];
   } else {
     loggedArr = htmlStr.split('Welcome dummyUser,');
-    htmlStr = loggedArr[0] + '<a href="/auth">Switch Role</a>' +loggedArr[1];
+    htmlStr = loggedArr[0] + `<a href="/auth">Switch Account,</a>`+loggedArr[1];
+
+    loggedArr = htmlStr.split('<a href="/articles">NEWS ARCHIVE</a>')
+    htmlStr = loggedArr[0]+loggedArr[1];
   }
 
   loggedArr = htmlStr.split('dummyRole');
   htmlStr = loggedArr[0] + role +loggedArr[1];
+
   return htmlStr;  
 }
 
@@ -94,7 +104,6 @@ exports.getArticles = async (req, res, next) =>{
           return; 
         }
         let articles = getPublicArticles();
-        
         let articlesPage = buildPublicHTML(articles, html, urlObj, req.cookies.hasVisited, req.cookies.Role);
         res.writeHeader(200, {"Content-Type": "text/html"});  
         res.write(articlesPage);  

@@ -34,12 +34,28 @@
                 "CONTENT": "The Angels and pitcher Garrett Richards have agreed to a contract for 2017 for $3.2 million, according to CBSSports.com Baseball Insider Jon Heyman. Richards was asking for $3.8 million while the Angels offered $2.4 million. Richards posted a 13-4 record in 2016 with a 2.61 ERA and 164 strikeouts for Los Angeles."
             },
             {
-                "TITLE": "Article Title",
-                "AUTHOR": "John Smith",
-                "DATE": "mm/dd/yyyy",
+                "TITLE": "ASU has a new programming genius on the rise!",
+                "AUTHOR": "Alac Baldwin",
+                "DATE": "03/20/2022",
                 "PUBLIC": "T",
-                "CONTENT": "New Content",
+                "CONTENT": "Alex Zacco is probably the greatest programmer ever to enter the doors of ASU. He is so great his SER421 professor gave him an automatic A.",
                 "id": 4
+            },
+            {
+                "TITLE": "My journey as the greatest programmer in the world",
+                "AUTHOR": "Alex Zacco",
+                "DATE": "04/13/2022",
+                "PUBLIC": "T",
+                "CONTENT": "No one can match me. I am the greatest. I said that even before I knew I was.",
+                "id": 5
+            },
+            {
+                "TITLE": "Downfall of self proclaimed 'Greatest Programmer'",
+                "AUTHOR": "Alex Zacco",
+                "DATE": "04/15/2022",
+                "PUBLIC": "T",
+                "CONTENT": "I have made a grave mistake. I programmed an AI so intelligent it became a sentient life form. I am so aorry, we are all doomed.",
+                "id": 5
             }
         ]
     }

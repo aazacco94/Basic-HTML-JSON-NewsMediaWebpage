@@ -12,7 +12,7 @@ exports.getLogin = async (req, res, next) =>{
       return; 
     }    
     res.writeHeader(200, {"Content-Type": "text/html"});  
-    res.write(html);  
+    res.write(html);
     res.end(); 
   });
 }
