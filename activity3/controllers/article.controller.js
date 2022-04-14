@@ -1,11 +1,11 @@
 'use strict'
 const fs = require('fs');
 const url = require('url').URL;
-const newsPath = './rawdata/news.json';
-const articlesPagePath = './rawdata/articlespage.html';
-const editPagePath = './rawdata/editArticlesPage.html';
-const addPagePath = './rawdata/addArticlePage.html';
-const deletePagePath = './rawdata/deleteArticlesPage.html';
+const newsPath = './rawdata3/news.json';
+const articlesPagePath = './rawdata3/articlespage.html';
+const editPagePath = './rawdata3/editArticlesPage.html';
+const addPagePath = './rawdata3/addArticlePage.html';
+const deletePagePath = './rawdata3/deleteArticlesPage.html';
 let news, articles, rawdata;
 
 rawdata = fs.readFileSync(newsPath);
@@ -23,26 +23,55 @@ async function updateArticles(){
   }
 }
 
-function getStoredArticles(){
+function getStoredArticles(username, role){
   rawdata = fs.readFileSync(newsPath);
   news = JSON.parse(rawdata);
   articles = news.NEWS.ARTICLE;
-  return articles;
+  let filteredArt = articles;
+
+  if(role == 'Reporter'){
+    filteredArt = articles.filter(function(filtered){
+      return (filtered.AUTHOR).includes(username);
+    });
+  }
+
+  return filteredArt;
 }
 
-function addUserCookie(html, username){
+function addUserCookie(html, username, role){
   let htmlStr = html.toString();
-  let loggedArr = htmlStr.split('dummyUser');
-  htmlStr = loggedArr[0] + username +loggedArr[1];
+  let loggedArr;
+  if(role == 'Reporter' || role == 'Admin'){
+    loggedArr = htmlStr.split('Welcome dummyUser,');
+    htmlStr = loggedArr[0] + `<a href="/auth">Welcome ${username},</a>`+loggedArr[1];
+  } else if(role === 'Subscriber'){
+    loggedArr = htmlStr.split('Welcome dummyUser,');
+    htmlStr = loggedArr[0] + `<a href="/auth">Welcome ${username},</a>`+loggedArr[1];
+
+    loggedArr = htmlStr.split('<a href="/articles">NEWS ARCHIVE</a>')
+    htmlStr = loggedArr[0]+loggedArr[1];
+
+    loggedArr = htmlStr.split('PUBLIC FEED')
+    htmlStr = loggedArr[0]+"SUBSCRIBER FEED"+loggedArr[1];
+  } else {
+    loggedArr = htmlStr.split('Welcome dummyUser,');
+    htmlStr = loggedArr[0] + `<a href="/auth">Switch Account,</a>`+loggedArr[1];
+
+    loggedArr = htmlStr.split('<a href="/articles">NEWS ARCHIVE</a>')
+    htmlStr = loggedArr[0]+loggedArr[1];
+  }
+
+  loggedArr = htmlStr.split('dummyRole');
+  htmlStr = loggedArr[0] + role +loggedArr[1];
+
   return htmlStr;  
 }
 
-function buildEditHTML(jsonData, html, artNum, username){
-  let htmlStr = addUserCookie(html, username);    
-
+function buildEditHTML(html, artNum, username, role){
+  let htmlStr = addUserCookie(html, username, role);    
+  let jsonData = getStoredArticles(username, role);
   let htmlArr = htmlStr.split("<br /><br /><br /><br /><br /><br /><br />");
   let newHTML = htmlArr[0];
-  let articles = getStoredArticles();
   let article = articles[artNum];
 
   let editHtml = newHTML.split('dummyValue');
@@ -81,9 +110,9 @@ function buildEditHTML(jsonData, html, artNum, username){
   return newHTML;
 }
 
-function buildAddHTML(jsonData, html, username){
-  let htmlStr = addUserCookie(html, username);     
-
+function buildAddHTML(html, username, role){
+  let htmlStr = addUserCookie(html, username, role);     
+  let jsonData = getStoredArticles(username, role);
   let htmlArr = htmlStr.split("<br /><br /><br /><br /><br /><br /><br />");
   let newHTML = htmlArr[0];
 
@@ -111,14 +140,15 @@ function buildAddHTML(jsonData, html, username){
   return newHTML;
 }
 
-function buildArticlesHTML(jsonData, html, urlObj, username){
-  let htmlStr = addUserCookie(html, username);    
+function buildArticlesHTML(html, urlObj, username, role){
+  let htmlStr = addUserCookie(html, username, role);    
 
   let htmlArr = htmlStr.split("<br /><br /><br /><br /><br /><br /><br />");
   let newHTML = htmlArr[0];
   let titleFilter = urlObj.searchParams.get("TITLE");
   let authorFilter = urlObj.searchParams.get("AUTHOR");
   let dateFilter = urlObj.searchParams.get("DATE");
+  let jsonData = getStoredArticles(username, role);
 
   if(titleFilter !=="" && titleFilter !== null){
     jsonData = jsonData.filter(function(filtered){
@@ -160,8 +190,8 @@ function buildArticlesHTML(jsonData, html, urlObj, username){
   return newHTML;
 }
 
-function buildDeletePageHTML(jsonData, html, urlObj, username){
-  let htmlStr = addUserCookie(html, username);    
+function buildDeletePageHTML(html, urlObj, username, role){
+  let htmlStr = addUserCookie(html, username, role);    
 
   let htmlArr = htmlStr.split("<br /><br /><br /><br /><br /><br /><br />");
   let newHTML = htmlArr[0];
@@ -169,6 +199,7 @@ function buildDeletePageHTML(jsonData, html, urlObj, username){
   let titleFilter = urlObj.searchParams.get("TITLE");
   let authorFilter = urlObj.searchParams.get("AUTHOR");
   let dateFilter = urlObj.searchParams.get("DATE");
+  let jsonData = getStoredArticles(username, role);
 
   if(titleFilter !=="" && titleFilter !== null){
     jsonData = jsonData.filter(function(filtered){
@@ -218,8 +249,8 @@ exports.addArticlePage = async (req, res, next) => {
         res.end("404 Not Found: " + JSON.stringify(err));
         return; 
       }
-      
-      let articlesPage = buildAddHTML(articles, html, req.cookies.hasVisited);
+      console.log(`- ${req.cookies.hasVisited} navigated to Add Article page!`)
+      let articlesPage = buildAddHTML(html, req.cookies.hasVisited, req.cookies.Role);
       res.writeHeader(200, {"Content-Type": "text/html"});  
       res.write(articlesPage);  
       res.end(); 
@@ -241,6 +272,7 @@ exports.createArticle = async (req, res, next) => {
         article.id = articles.length;
         articles.push(article);
         updateArticles();
+        console.log(`- ${req.cookies.hasVisited} has created an article!`)
         if(req.headers.accept === 'application/json'){
           res.status(200).json(articles);
         }else{
@@ -251,7 +283,7 @@ exports.createArticle = async (req, res, next) => {
               return; 
             }
             
-            let articlesPage = buildAddHTML(articles, html, req.cookies.hasVisited);
+            let articlesPage = buildAddHTML(html, req.cookies.hasVisited, req.cookies.Role);
             res.writeHeader(200, {"Content-Type": "text/html"});  
             res.write(articlesPage);  
             res.end(); 
@@ -278,8 +310,8 @@ exports.getArticles = async (req, res, next) =>{
           res.end("404 Not Found: " + JSON.stringify(err));
           return; 
         }
-        
-        let articlesPage = buildArticlesHTML(articles, html, urlObj, req.cookies.hasVisited);
+        console.log(`- ${req.cookies.hasVisited} navigating to Articles Page.`)
+        let articlesPage = buildArticlesHTML(html, urlObj, req.cookies.hasVisited, req.cookies.Role);
         res.writeHeader(200, {"Content-Type": "text/html"});  
         res.write(articlesPage);  
         res.end(); 
@@ -302,7 +334,12 @@ exports.deleteArticles = async (req, res, next) =>{
   let urlObj = new url(req.url, "http://localhost:3002/");
   let artNum = urlObj.searchParams.get("articleRadio");
   try{
-    deleteArticle(artNum);
+    if(artNum!==null){
+      deleteArticle(artNum);
+      console.log(`- ${req.cookies.hasVisited} has deleted article ${artNum}.`);
+    }else{
+      console.log(`- ${req.cookies.hasVisited} has navigated to Deleted article page.`);
+    }
     if(req.headers.accept === 'application/json'){
       res.status(200).json(articles);
     }else{
@@ -313,7 +350,7 @@ exports.deleteArticles = async (req, res, next) =>{
           return; 
         }
         
-        let articlesPage = buildDeletePageHTML(articles, html, urlObj, req.cookies.hasVisited);
+        let articlesPage = buildDeletePageHTML(html, urlObj, req.cookies.hasVisited, req.cookies.Role);
         res.writeHeader(200, {"Content-Type": "text/html"});  
         res.write(articlesPage);  
         res.end(); 
@@ -334,12 +371,11 @@ exports.editArticle = async (req, res, next) =>{
         res.end("404 Not Found: " + JSON.stringify(err));
         return; 
       }
-      console.log("Line 333: " + artNum)
       if(artNum == null){
         artNum = 0;
       }
-      
-      let articlesPage = buildEditHTML(articles, html, artNum, req.cookies.hasVisited);
+      console.log(`- ${req.cookies.hasVisited} navigated to Edit Article page!`)
+      let articlesPage = buildEditHTML(html, artNum, req.cookies.hasVisited, req.cookies.Role);
       res.writeHeader(200, {"Content-Type": "text/html"});  
       res.write(articlesPage);  
       res.end(); 
@@ -368,6 +404,7 @@ exports.updateArticle = async (req, res, next) =>{
           updatedArt.CONTENT = req.body.CONTENT;
           articles[artNum] = updatedArt;
           updateArticles();
+          console.log(`- ${req.cookies.hasVisited} has updated article ${artNum}.`)
           if(req.headers.accept =='application/json'){
             res.status(200).json(updatedArt);
           }else{
@@ -378,7 +415,7 @@ exports.updateArticle = async (req, res, next) =>{
                 return; 
               }
 
-              let articlesPage = buildEditHTML(articles, html, artNum, req.cookies.hasVisited);
+              let articlesPage = buildEditHTML(html, artNum, req.cookies.hasVisited, req.cookies.Role);
               res.writeHeader(200, {"Content-Type": "text/html"});  
               res.write(articlesPage);  
               res.end(); 

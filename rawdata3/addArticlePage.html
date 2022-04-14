@@ -9,6 +9,8 @@
 <body link="#000" alink="#017bf5" vlink="#000">
 	<h6 align="right">
 		<font face="Lato">Welcome dummyUser,</font>
+  	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <font face="Lato">Role: dummyRole</font>
 	</h6>
 	<br />
 	<h3 align="center">
@@ -21,27 +23,33 @@
 			<a href="/public">PUBLIC FEED</a>
 		</font>
 	</h3>
-	<h2>Search Articles</h2>
-	<p>
-		<form action="articles" method="get">
-			<table border=1 cols=2 >
+  <br /><br /><br />
+	  <h2>Add Article</h2>
+	  <p>
+		<form action="add" method="post">
+			<table border=1 cols=5 >
 				<tr>
 					<th>Title</th>
-					<td><input type="text" size="20" name="TITLE" value=""></td>
-				</tr>
-				<tr>
 					<th>Author</th>
-					<td><input type="text" size="20" name="AUTHOR" value=""></td>
+          <th>Date</th>
+					<th>Public</th>
+          <th>Content</th>
 				</tr>
 				<tr>
-          <th>Date</th>
-					<td><input type="text" size="20" name="DATE" value=""></td>
+					<td><input type="text" size="30" name="TITLE" value="Article Title"></td>
+
+					<td><input type="text" size="12" name="AUTHOR" value="John Smith"></td>
+
+					<td><input type="text" size="7" name="DATE" value="mm/dd/yyyy"></td>
+
+					<td><input type="text" size="1" name="PUBLIC" value="T"></td>
+
+					<td><input type="text" size="100" name="CONTENT" value="New Content"></td>
 				</tr>
 			</table>
-			<input type="submit" value="Search"><input type="reset">
+			<input type="submit" value="Add"><input type="reset">
 		</form>
 	  </p>
-	<br /><br /><br /><br /><br /><br /><br />
-  <br /><br /><br />
-</body>
+    <br /><br /><br /><br /><br /><br /><br />
+	</body>
 </html>
